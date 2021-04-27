@@ -1,0 +1,13 @@
+Aqui vai um teste... 
+
+fluxo
+1- ligar HTTPGateway
+2- ligar fastFileServs
+3- receber pedidos
+4- parsar a info 
+5- pedir ficheiro em chunks 
+6- ler ficheiro 
+7- enviar ficheiro 
+8- receber ficheiro 
+9- escreve-lo para enviar em http request 
+10- mandar ficheiro 

@@ -1,17 +1,33 @@
-import socket
+# CLIENTE
 
-IP_ADDRESS  = "localhost"
+import socket
+from os import listdir
+from os.path import isfile, join
+import random
+
+# Ir buscar os nomes dos ficheiros do FFS
+onlyfiles = [f for f in listdir("/Users/puyol/Desktop/CC2021") if isfile(join("/Users/puyol/Desktop/CC2021", f))]
+print(onlyfiles,len(onlyfiles))
+
+
+IP_ADDRESS  = "127.0.0.1"
 UDP_PORT_NO = 8888
 BUFFER_SIZE = 1024
-
-Message = ("Ola HTTPGateway")
+nrFiles = 0
 
 UDPClientSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-UDPClientSocket.sendto(Message.encode(),(IP_ADDRESS, UDP_PORT_NO))
+# Primeiro envio é a dizer os nomes dos ficheiros, ou no caso de não caber tudo numa mensagem
+# tem de se enviar um marcador a dizer que vão ser enviadas mais X mensagens com nomes.
 
-msgFromServer = UDPClientSocket.recvfrom(BUFFER_SIZE)
+while True:
+    msg = "ola httpgw"
+    UDPClientSocket.sendto(str.encode(msg),(IP_ADDRESS, UDP_PORT_NO))
 
-msg = "Message from Server {}".format(msgFromServer[0])
 
-print(msg)
+    msgFromServer = UDPClientSocket.recvfrom(BUFFER_SIZE)
+    msg = "Message from Server {}".format(msgFromServer[0])
+    print(msg)
+
+
+UDPClientSocket.close()
