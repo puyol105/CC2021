@@ -1,19 +1,18 @@
-# SERVIDOR
-
 import socket
 import re
 from threading import Thread
 import FSChunk
 import FastFileServeTable
+import pickle
+import re
 
-BUFFER_SIZE  = 1024
+BUFFER_SIZE = 1024
+CHUNK_SIZE = 500
 
 
 fastFileServList = FastFileServeTable.FastFileServeTable()
 fileToGo = b''
-listaPedidos = {
-    "127.0.0.1": "teste.txt"
-}
+listaPedidos = FastFileServeTable.ListaPedidos()
 
 
 # Faz a ligação UDP
@@ -27,14 +26,37 @@ def UDPListen():
     print("HTTPGateway a escutar em UDP com sucesso")
 
     while True:
+
+        # Recebe uma mensagem por UDP de um novo FFS
         data, addr = UDPServerSocket.recvfrom(BUFFER_SIZE)
+        mensagem = pickle.loads(data).data
+        nrMsg, files = re.split("__",mensagem.decode("utf-8"))
+
+        # Caso os files não caibam numa mensagem, ler até ter os files todos
+        while int(nrMsg) > 1:
+            data2, addr = UDPServerSocket.recvfrom(BUFFER_SIZE)
+            _ , files2 = re.split("__",pickle.loads(data2).data.decode("utf-8"))
+            files += files2
+            nrMsg-=1
+
+        #Adiconar files e FFS 
+        fastFileServList.adicionaFFS(addr,UDP_PORT_NO,files)
+
+        print(f"FastFileServ {addr} Ligado", nrMsg, files)
+        print("Lista de servers", fastFileServList.servidores)
+
+        # Trata pedidos
+        if not bool(listaPedidos):
+            # Vê que ffs têm o file para transferir
+            disponiveis = fastFileServList.procuraFile()
+
+            # divide os chunks a pedir
 
 
-        print(f"FastFileServ {addr} Ligado", data)
-        print("Lista de server", fastFileServList)
+
 
         msgFromServer       = b"olaola"
-        UDPServerSocket.sendto(msgFromServer,(IP_ADDRESS, UDP_PORT_NO))
+        UDPServerSocket.sendto(msgFromServer, addr)
 
 
 
@@ -49,9 +71,11 @@ def TCPListen():
     print("HTTPGateway a escutar em TCP com sucesso")
 
     while True:
+        #Faz a conexão TCP
         TCPServerSocket.listen(1)
         conn, address = TCPServerSocket.accept()
         print("TCP connection from", address)
+        # Parsing do HTTP request
         data = conn.recv(BUFFER_SIZE)
         stringdata = data.decode('utf-8')
         filename = re.sub('/','',stringdata).split(' ')

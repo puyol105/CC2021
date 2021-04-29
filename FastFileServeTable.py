@@ -21,4 +21,17 @@ class FastFileServeTable:
         return res
 
     def adicionaFFS(self, ip, porta, files):
-        self.servidores[ip] = FastFileServeTableEntry(ip, porta, files)
+        self.servidores[ip] = FastFileServeTableEntry(ip, porta, files) #files
+    
+    def mostra(self):
+        for s in self.servidores:
+            print(s.ip, ":", s.files)
+
+class ListaPedidos:
+    def __init__(self):
+        self.pedidos = {}
+
+    def adicionaPedido(self, ip, porta, file):
+        self.pedidos[ip] = file
+
+    
