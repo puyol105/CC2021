@@ -10,9 +10,9 @@ BUFFER_SIZE = 1024
 CHUNK_SIZE = 500
 
 
-fastFileServList = FastFileServeTable.FastFileServeTable()
-fileToGo = b''
-listaPedidos = FastFileServeTable.ListaPedidos()
+fastFileServList = FastFileServeTable.FastFileServeTable() # 'ffs': ['files']     -> Lista de FFSs com uma lista de files
+filesToGo = {}                                             # 'iphttp': b'file'    -> Lista de ficheiros prontos a enviar
+listaPedidos = FastFileServeTable.ListaPedidos()           # 'iphttp': 'filename' -> Lista de pedidos de ficheiros
 
 
 # Faz a ligação UDP
@@ -52,6 +52,12 @@ def UDPListen():
 
             # divide os chunks a pedir
 
+            # Pedir os files aos ffs
+
+            # Receber e verificar se está tudo direito
+            
+            # Registar o file comprelo na lista a enviar
+
 
 
 
@@ -75,16 +81,29 @@ def TCPListen():
         TCPServerSocket.listen(1)
         conn, address = TCPServerSocket.accept()
         print("TCP connection from", address)
+
         # Parsing do HTTP request
         data = conn.recv(BUFFER_SIZE)
         stringdata = data.decode('utf-8')
         filename = re.sub('/','',stringdata).split(' ')
         ip = f"{address[0]}"#":{address[1]}"
         print("Filename Requested:", filename[1],ip)
-        listaPedidos[ip]=filename[1]
-        print(listaPedidos)
-        f=open(filename[1],'rb')
-        content=f.read()
+
+        # Acrescentar pedido à listaPedidos
+        listaPedidos.adicionaPedido(ip,TCP_PORT_NO,filename[1])
+
+        # Verificar o filesToGo até ter lá o ficheiro
+
+        # Ler o ficheiro e enviar o ficheiro
+
+
+
+
+
+
+        # 
+        # f=open(filename[1],'rb')
+        # content=f.read()
         
         #fschunk = FSChunkProtocol(filename[1],)
         #Escrever ficheiro
