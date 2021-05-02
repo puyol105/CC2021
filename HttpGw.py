@@ -39,18 +39,26 @@ def UDPListen():
             files += files2
             nrMsg-=1
 
-        #Adiconar files e FFS 
+        # Adiconar files e FFS 
         fastFileServList.adicionaFFS(addr,UDP_PORT_NO,files)
 
         print(f"FastFileServ {addr} Ligado", nrMsg, files)
         print("Lista de servers", fastFileServList.servidores)
 
         # Trata pedidos
+        print("Lista Pedidos", listaPedidos)
+
         if not bool(listaPedidos):
+            print("ENTROU")
+            # Vai buscar o filename do pedido de cima
+            f = listaPedidos.primeiroPedido()
+
             # Vê que ffs têm o file para transferir
-            disponiveis = fastFileServList.procuraFile()
+            disponiveis = fastFileServList.procuraFile(f)
+            print("Disponiveis:", disponiveis)
 
             # divide os chunks a pedir
+            
 
             # Pedir os files aos ffs
 
@@ -77,7 +85,7 @@ def TCPListen():
     print("HTTPGateway a escutar em TCP com sucesso")
 
     while True:
-        #Faz a conexão TCP
+        # Faz a conexão TCP
         TCPServerSocket.listen(1)
         conn, address = TCPServerSocket.accept()
         print("TCP connection from", address)
@@ -93,9 +101,11 @@ def TCPListen():
         listaPedidos.adicionaPedido(ip,TCP_PORT_NO,filename[1])
 
         # Verificar o filesToGo até ter lá o ficheiro
+        while not listaPedidos.procuraPedido(ip):
+            1
 
         # Ler o ficheiro e enviar o ficheiro
-
+        
 
 
 

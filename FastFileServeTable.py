@@ -5,7 +5,7 @@ class FastFileServeTableEntry:
         self.files = files
 
     def encontra(self, file):
-        if file in self.files:
+        if file[0] in self.files:
             return True
         return False
 
@@ -37,5 +37,11 @@ class ListaPedidos:
         if ip in self.pedidos:
             return True
         return False
+
+    def primeiroPedido(self):
+        values_view = self.pedidos.values()
+        value_iterator = iter(values_view)
+        first_value = next(value_iterator)
+        return first_value
 
     
