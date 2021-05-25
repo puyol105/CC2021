@@ -10,8 +10,11 @@ import constants
 import http.client
 
 
+# Os prints começados por '++' são referentes à ligação UDP, e os '--' são TCP
+
+
 fastFileServList = FastFileServeTable.FastFileServeTable()     # 'ffs': ['(file,size)']     -> Lista de FFSs com uma lista de files                      
-listaPedidos     = FastFileServeTable.ListaPedidos()           # 'iphttp': 'filename' -> Lista de pedidos de ficheiros
+listaPedidos     = FastFileServeTable.ListaPedidos()           # 'iphttp': 'filename'       -> Lista de pedidos de ficheiros
 fileToGo         = b''
 
 # Faz a ligação UDP
@@ -79,26 +82,18 @@ def UDPListen(lock):
 
             while nrMsg > 0:
                 data, addr = UDPServerSocket.recvfrom(constants.MAX_BUFFER)
-                #print(data)
                 msg = pickle.loads(data).data.decode("utf-8")
-                #print(msg)
                 chunkList.append(msg)
                 nrMsg -= 1
-            # while data:
-            #     print("++1")
-            #     data, addr := UDPServerSocket.recvfrom(BUFFER_SIZE)
-            #     msg = pickle.loads(data).data.decode("utf-8")
-            #     chunkList.append(msg)
 
-
-        
             # Tratar das exceções caso o ficheiro não chegue com sucesso
+            # Verificar nr de msg recebidas e verificar nr de bytes:
+                # Se estiver OK, continuar
+                # Se não, voltar a pedir a outro FFS
             
             print("++fora")
 
-
-
-            # verificar se está tudo direito
+            # Dar locks e finalizar file
             lock.acquire()
             teste = ''.join([str(elem) for elem in chunkList])
             fileTeste = teste
@@ -108,14 +103,6 @@ def UDPListen(lock):
             # Remover Pedido da lista
             listaPedidos.removePedido(ffs_selecionado[0])
             print("++ Removido pedido", fileToGo)
-            
-
-
-
-        # msgFromServer       = b"olaola"
-        # print(msgFromServer, addr)
-        # UDPServerSocket.sendto(msgFromServer, addr)
-
 
 
 # Faz a ligação TCP
@@ -125,10 +112,9 @@ def TCPListen(lock):
     TCP_PORT_NO = 8080
 
     TCPServerSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IPv4, TCP
-    TCPServerSocket.connect((IP_ADDRESS, TCP_PORT_NO))
-    TCPServerSocket.sendall(b'GET /teste.txt HTTP/1.1\r\nHOST: localhost:8080\r\n\r\n')
+    TCPServerSocket.bind((IP_ADDRESS, TCP_PORT_NO))
 
-    print("--HTTPGateway a escutar em TCP com sucesso--")
+    print("--HTTPGateway a escutar em TCP com sucesso")
 
     while True:
         # Faz a conexão TCP
@@ -157,7 +143,6 @@ def TCPListen(lock):
         # client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # client_socket.connect((ip,constants.TCP_PORT))
 
-        teste = 'books. É, atualmente, a mais antiga biblioteca digital do mundo.'
 
         # BODY = "***filecontents***"
         # print("aquiaaaaaaa")
@@ -170,19 +155,14 @@ def TCPListen(lock):
         # print(response.status, response.reason)
 
 
-        # lock.acquire()
+        lock.acquire()
         
         # print("Vamos enviar?", address, str(conn), fileToGo)
-        teste2 = teste.encode()
-        conn.send(teste2)
+        conn.send(fileToGo)
 
-        # lock.release()
+        lock.release()
 
-
-        
-
-
-        #conn.close()
+        conn.close()
  
 def main():
     global fileToGo
@@ -196,9 +176,7 @@ def main():
 
     ThreadUDP.start()
     ThreadTCP.start()
-
-    ThreadUDP.join()
-    ThreadTCP.join()
+    
     print("Servidor Ligado!")
 
 

@@ -8,6 +8,6 @@ class FSChunk:
         self.data = data                 # Mensagem
 
 
-# Fazer ligação, basicamente é tipo cabeçalho, leva porta destino e mensagem
+# Fazer ligação, com cabeçalho, leva porta destino e mensagem
 # Se for a receber o fastfileserv é com o nome do ficheiro
 # Se for o oposto é o ficheiro em si
